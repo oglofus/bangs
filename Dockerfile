@@ -14,7 +14,7 @@ FROM alpine:latest
 
 WORKDIR /usr/src/bangs
 
-COPY --from=builder /app/build/bangs /usr/src/crons/bangs
+COPY --from=builder /app/build/bangs /usr/src/bangs/bangs
 
 RUN chmod +x /usr/src/bangs/bangs
 
