@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Oglofus Bangs</title>
+    <link rel="icon" href="https://oglofus.com/favicon.ico" sizes="any" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background: #ffffff;
+            --foreground: #09090b;
+            --card: #ffffff;
+            --card-foreground: #09090b;
+            --popover: #ffffff;
+            --popover-foreground: #09090b;
+            --primary: #18181b;
+            --primary-foreground: #fafafa;
+            --secondary: #f4f4f5;
+            --secondary-foreground: #18181b;
+            --muted: #f4f4f5;
+            --muted-foreground: #71717a;
+            --accent: #f4f4f5;
+            --accent-foreground: #18181b;
+            --destructive: #ef4444;
+            --destructive-foreground: #fafafa;
+            --border: #e4e4e7;
+            --input: #e4e4e7;
+            --ring: #18181b;
+            --radius: 0.5rem;
+            --bang-highlight: #4f46e5;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background: #09090b;
+                --foreground: #fafafa;
+                --card: #18181b;
+                --card-foreground: #fafafa;
+                --popover: #18181b;
+                --popover-foreground: #fafafa;
+                --primary: #fafafa;
+                --primary-foreground: #18181b;
+                --secondary: #27272a;
+                --secondary-foreground: #fafafa;
+                --muted: #27272a;
+                --muted-foreground: #a1a1aa;
+                --accent: #27272a;
+                --accent-foreground: #fafafa;
+                --destructive: #7f1d1d;
+                --destructive-foreground: #fafafa;
+                --border: #27272a;
+                --input: #27272a;
+                --ring: #d4d4d8;
+                --bang-highlight: #6366f1;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--background);
+            color: var(--foreground);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            line-height: 1.5;
+            padding: 5rem 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 1.5rem;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: var(--muted-foreground);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .url-display {
+            margin-bottom: 2rem;
+            display: flex;
+            width: 100%;
+            position: relative;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--input);
+            background-color: transparent;
+            color: var(--foreground);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--ring);
+            box-shadow: 0 0 0 1px var(--ring);
+        }
+
+        .search-form {
+            width: 100%;
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-form input {
+            border-radius: var(--radius) 0 0 var(--radius);
+            border-right: none;
+        }
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #27272a;
+        }
+
+        .search-form button {
+            border-radius: 0 var(--radius) var(--radius) 0;
+        }
+
+        .copy-btn {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 0.25rem;
+            background: transparent;
+            border: none;
+            color: var(--muted-foreground);
+        }
+
+        .copy-btn:hover {
+            color: var(--foreground);
+            background: transparent;
+        }
+
+        .copy-icon {
+            width: 1rem;
+            height: 1rem;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        #info-button {
+            background-color: var(--secondary);
+            color: var(--secondary-foreground);
+            margin-top: 0.5rem;
+        }
+
+        #info-button:hover {
+            background-color: var(--accent);
+        }
+
+        #info-section {
+            display: none;
+            text-align: left;
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            margin-top: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        #info-section h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        #info-section p.description {
+            margin-bottom: 1.25rem;
+        }
+
+        #bangs-example {
+            background-color: var(--muted);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1.25rem;
+            font-size: 0.875rem;
+        }
+
+        #bangs-example code {
+            display: block;
+            margin: 0.5rem 0;
+        }
+
+        .browser-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .browser-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .browser-section h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .browser-section p {
+            font-size: 0.875rem;
+            margin-bottom: 0;
+        }
+
+        code {
+            background-color: var(--muted);
+            color: var(--foreground);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        footer {
+            margin-top: 5rem;
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        footer a {
+            color: var(--muted-foreground);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        footer a:hover {
+            color: var(--foreground);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(1rem);
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 100;
+            font-size: 0.875rem;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            .copy-btn {
+                right: 0.25rem;
+            }
+
+            .search-url {
+                padding-right: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Oglofus Bangs</h1>
+    <p>
+        Oglofus Bangs provides lightning-fast search redirects using bangs.
+        Use shortcuts like "filter bubble !w" to search directly on other sites.
+    </p>
+
+    <div class="url-display">
+        <input id="search-url" readonly type="text">
+        <button class="copy-btn" id="copy-button" title="Copy to clipboard">
+            <svg class="copy-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+            </svg>
+        </button>
+    </div>
+
+    <form action="" method="get">
+        <div class="search-form">
+            <input autofocus name="q" placeholder="Search or add !bang at the end..." type="text">
+            <button type="submit">Search</button>
+        </div>
+    </form>
+
+    <button id="info-button">Learn more about Oglofus Bangs</button>
+
+    <div id="info-section">
+        <h2>About Oglofus Bangs</h2>
+        <p class="description">
+            Oglofus Bangs is a high-performance, open-source alternative to DuckDuckGo's bangs.
+            It provides lightning-fast redirections using hashed binary search for bang commands.
+        </p>
+
+        <div id="bangs-example">
+            <strong>Examples:</strong>
+            <code>filter bubble !w</code> - Search Wikipedia for "filter bubble"
+            <code>mechanical keyboard !gh</code> - Search GitHub for "mechanical keyboard"
+            <code>python book !a</code> - Search Amazon for "python book"
+        </div>
+
+        <h2>Set as Default Search Engine</h2>
+
+        <div class="browser-section">
+            <h3>Chrome</h3>
+            <p>
+                Settings → Search engine → Manage search engines → Add<br>
+                Enter "Oglofus Bangs" as name, "search" as keyword, and the URL above
+            </p>
+        </div>
+
+        <div class="browser-section">
+            <h3>Firefox</h3>
+            <p>
+                Right-click the search box → Add a Keyword for this Search → Enter details<br>
+                To set as default: Settings → Search → Default Search Engine
+            </p>
+        </div>
+
+        <div class="browser-section">
+            <h3>Edge</h3>
+            <p>
+                Settings → Privacy, search, and services → Address bar and search → Manage search engines<br>
+                Add → Enter details → Make default
+            </p>
+        </div>
+
+        <div class="browser-section">
+            <h3>Safari</h3>
+            <p>
+                Safari → Settings → Search → Select "Other..." → Enter URL
+            </p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <a href="https://oglofus.com" target="_blank">oglofus.com</a>
+    <a href="https://github.com/oglofus/bangs" target="_blank">github</a>
+    <a href="https://nikosgram.me" target="_blank">nikosgram.me</a>
+</footer>
+
+<div class="toast" id="toast">URL copied to clipboard</div>
+
+<script>
+    document.querySelector('form').action = window.location.origin + '/';
+
+    const searchUrl = document.getElementById('search-url');
+    searchUrl.value = window.location.origin + '/?q=%s';
+
+    document.getElementById('copy-button').addEventListener('click', function () {
+        searchUrl.select();
+        document.execCommand('copy');
+
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+
+        setTimeout(function () {
+            toast.classList.remove('show');
+        }, 2000);
+    });
+
+    document.getElementById('info-button').addEventListener('click', function () {
+        const infoSection = document.getElementById('info-section');
+        if (infoSection.style.display === 'block') {
+            infoSection.style.display = 'none';
+        } else {
+            infoSection.style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>

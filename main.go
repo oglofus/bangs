@@ -27,6 +27,9 @@ var idx []byte
 //go:embed bangs.dat
 var data []byte
 
+//go:embed index.html
+var index []byte
+
 // Default search URL template with placeholder (0xC0) for query
 var def []byte
 
@@ -143,6 +146,8 @@ func handler(ctx *fasthttp.RequestCtx) {
 	}
 
 	ctx.SetStatusCode(200)
+	ctx.SetContentType("text/html; charset=utf-8")
+	ctx.SetBodyStream(bytes.NewReader(index), len(index))
 }
 
 func main() {
