@@ -1,3 +1,7 @@
+// Copyright (c) 2025 Nikolaos Grammatikos and Oglofus Ltd (Company No. 14840351)
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE or copy at https://www.boost.org/LICENSE_1_0.txt
+
 package main
 
 import (

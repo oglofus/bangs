@@ -1,4 +1,4 @@
-# Oglofus Bangs
+# Oglofus Bangs [![Docker](https://github.com/oglofus/bangs/actions/workflows/docker-publish.yml/badge.svg?branch=main)](https://github.com/oglofus/bangs/actions/workflows/docker-publish.yml)
 
 Oglofus Bangs is a high-performance, open-source alternative to DuckDuckGo's bangs. It provides lightning-fast
 redirections using hashed binary search for bang commands.
