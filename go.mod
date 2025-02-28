@@ -1,4 +1,4 @@
-module bangs
+module github.com/oglofus/bangs
 
 go 1.24
 
