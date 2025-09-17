@@ -1,20 +1,17 @@
-// Copyright (c) 2025 Nikolaos Grammatikos and Oglofus Ltd (Company No. 14840351)
-// Distributed under the Boost Software License, Version 1.0.
-// See accompanying file LICENSE or copy at https://www.boost.org/LICENSE_1_0.txt
-
 package main
 
 import (
 	"bytes"
 	"crypto/sha3"
-	_ "embed"
 	"encoding/binary"
 	"errors"
-	"flag"
-	"github.com/valyala/fasthttp"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/syumai/workers"
+
+	_ "embed"
 )
 
 const IndexLength uint64 = 44
@@ -31,7 +28,7 @@ var data []byte
 var index []byte
 
 // Default search URL template with placeholder (0xC0) for query
-var def []byte
+var def = append([]byte("https://www.google.com/search?q="), QueryPlaceholder)
 
 func createDefaultBang(template string) ([]byte, error) {
 	if !strings.Contains(template, "<q>") {
@@ -101,81 +98,57 @@ func findBang(hash []byte) (bang []byte) {
 	return
 }
 
-func handler(ctx *fasthttp.RequestCtx) {
-	var args = ctx.QueryArgs()
+func main() {
+	var handler http.HandlerFunc = func(w http.ResponseWriter, req *http.Request) {
+		var args = req.URL.Query()
 
-	if args.Has("q") {
-		var q = args.Peek("q")
-		var qLen = len(q)
+		if args.Has("q") {
+			var q = []byte(args.Get("q"))
+			var qLen = len(q)
 
-		if qLen > 0 {
-			var bang = def
+			if qLen > 0 {
+				var bang = def
 
-			var searchLimit = 32
-			if searchLimit > qLen {
-				searchLimit = qLen
-			}
-
-			for i := qLen - 1; i >= qLen-searchLimit; i-- {
-				if i < 0 {
-					break
+				var searchLimit = 32
+				if searchLimit > qLen {
+					searchLimit = qLen
 				}
 
-				if q[i] == '!' {
-					if i+1 < qLen {
-						var hash = sha3.Sum224(q[i+1:])
-						var foundBang = findBang(hash[:])
-
-						if len(foundBang) > 0 {
-							q = q[:i]
-							bang = foundBang
-						}
+				for i := qLen - 1; i >= qLen-searchLimit; i-- {
+					if i < 0 {
+						break
 					}
 
-					break
+					if q[i] == '!' {
+						if i+1 < qLen {
+							var hash = sha3.Sum224(q[i+1:])
+							var foundBang = findBang(hash[:])
+
+							if len(foundBang) > 0 {
+								q = q[:i]
+								bang = foundBang
+							}
+						}
+
+						break
+					}
 				}
+
+				var url = bytes.Replace(bang, []byte{QueryPlaceholder}, q, -1)
+
+				w.Header().Set("Location", string(url))
+				http.Redirect(w, req, string(url), http.StatusFound)
+
+				return
 			}
-
-			var url = bytes.Replace(bang, []byte{0xC0}, q, -1)
-
-			ctx.Response.Header.Set("Location", string(url))
-			ctx.RedirectBytes(url, http.StatusFound)
-
-			return
 		}
+
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(200)
+		_, _ = w.Write(index)
+
+		return
 	}
 
-	ctx.SetStatusCode(200)
-	ctx.SetContentType("text/html; charset=utf-8")
-	ctx.SetBodyStream(bytes.NewReader(index), len(index))
-}
-
-func main() {
-	var addr = flag.String("addr", ":8080", "HTTP server address")
-	var defaultBang = flag.String(
-		"default",
-		"https://www.google.com/search?q=<q>",
-		"Default search URL template (must contain <q> as query placeholder)",
-	)
-
-	flag.Parse()
-
-	var err error
-	if def, err = createDefaultBang(*defaultBang); err != nil {
-		log.Fatalf("Error setting default bang: %v", err)
-	}
-
-	if len(idx) == 0 {
-		log.Println("Warning: Index file is empty")
-	}
-	if len(data) == 0 {
-		log.Println("Warning: Data file is empty")
-	}
-
-	log.Printf("Starting server on %s", *addr)
-	log.Printf("Using default search: %s", *defaultBang)
-
-	if err = fasthttp.ListenAndServe(*addr, handler); err != nil {
-		log.Fatalf("Error in ListenAndServe: %v", err)
-	}
+	workers.Serve(handler)
 }

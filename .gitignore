@@ -21,3 +21,7 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 modules.xml
+build/
+node_modules/
+.wrangler/
+.vscode/

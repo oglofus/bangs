@@ -1,7 +1,8 @@
-# Oglofus Bangs [![Docker](https://github.com/oglofus/bangs/actions/workflows/docker-publish.yml/badge.svg?branch=main)](https://github.com/oglofus/bangs/actions/workflows/docker-publish.yml)
+# Oglofus Bangs (Cloudflare Workers)
 
 Oglofus Bangs is a high-performance, open-source alternative to DuckDuckGo's bangs. It provides lightning-fast
-redirections using hashed binary search for bang commands.
+redirections using hashed binary search for bang commands, and now runs on Cloudflare Workers for global, low‑latency
+availability.
 
 ## What are bangs?
 
@@ -12,10 +13,9 @@ you directly to Wikipedia.
 ## Why Oglofus Bangs?
 
 - **Speed**: Utilizes hashed binary search for extremely fast bang lookups
-- **Performance**: Built with [fasthttp](https://github.com/valyala/fasthttp) for high-throughput, low-latency HTTP
-  handling
-- **Lightweight**: Minimal dependencies and efficient memory usage
-- **Self-hosted**: Run your own bang service without relying on third parties
+- **Edge-native**: Runs on Cloudflare Workers for globally distributed, low‑latency responses
+- **Lightweight**: Minimal dependencies and efficient memory usage (Go → WebAssembly)
+- **Self-hosted**: Deploy to your own Cloudflare account
 - **Customizable**: Easily add or modify bangs to suit your needs
 
 ## How It Works
@@ -30,152 +30,105 @@ bang command. The system:
 
 This approach provides O(log n) lookup performance even with thousands of bangs.
 
-## Deployment
+## Deployment (Cloudflare Workers)
 
-### Using Docker
+This project targets Cloudflare Workers using the `github.com/syumai/workers` runtime. You can run it locally via
+Wrangler and deploy it to your Cloudflare account.
 
-Oglofus Bangs is available as a Docker image for easy deployment. You can pull the image from GitHub Container Registry:
+One-click deploy:
 
-```bash
-docker pull ghcr.io/oglofus/bangs:latest
-````
-
-Run the container:
-
-```bash
-docker run -p 8080:8080 ghcr.io/oglofus/bangs:latest
-```
-
-You can specify a custom address and default search engine:
-
-```bash
-docker run -p 9000:9000 ghcr.io/oglofus/bangs:latest -addr :9000 -default "https://duckduckgo.com/?q=<q>"
-```
-
-### Building Your Own Docker Image
-
-If you prefer to build your own Docker image, you can use the provided Dockerfile:
-
-```bash
-git clone https://github.com/oglofus/bangs.git
-cd bangs
-docker build -t oglofus-bangs .
-docker run -p 8080:8080 oglofus-bangs
-```
-
-The Dockerfile uses a multi-stage build process to create a minimal image:
-
-1. Builds the application in a Golang Alpine container
-2. Copies only the necessary binaries to a clean Alpine image
-3. Exposes port 8080 for the service
-
-## Installation
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2Foglofus%2Fbangs)
 
 ### Prerequisites
 
-- Go 1.24 or higher
+- Go 1.25+ (WASM build target)
+- Node.js 18+ and npm
+- Cloudflare account
+- Wrangler CLI (installed locally via devDependency)
 
-### Building from Source
+### Quick start
 
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/oglofus/bangs.git
-    cd bangs
-    ```
+```bash
+# Install JS tooling (Wrangler)
+npm install
 
-2. Build the project:
-    ```bash
-    go build -o bangs
-    ```
+# (Optional) Login once to your Cloudflare account
+npx wrangler login
 
-3. Run the server:
-   ```bash
-    ./bangs [options]
-    ```
+# Build the worker (generates build/app.wasm and build/worker.mjs)
+npm run build
 
-By default, the server runs on address `:8080` if no address is specified.
+# Start local dev server (Miniflare)
+npm run dev
+# → Open the printed http://127.0.0.1:8787 URL
+
+# Deploy to your Cloudflare account
+npm run deploy
+```
+
+Notes:
+- The worker entry is configured in `wrangler.jsonc` (main: ./build/worker.mjs).
+- On first deploy, Wrangler will guide you to select an account and create the worker.
 
 ## Usage
 
-Once the server is running, you can use it by sending HTTP requests with a query parameter `q` containing your search
-term and bang:
+Once the worker is running (locally or deployed), use the `q` query parameter containing your search term and bang:
 
-http://localhost:8080/?q=filter%20bubble%20!w
+Example:
+
+```
+http://127.0.0.1:8787/?q=filter%20bubble%20!w
+```
 
 This will redirect you to Wikipedia's search for "filter bubble".
 
-**Important:** Unlike DuckDuckGo's implementation, Oglofus Bangs only recognizes bangs that appear at the end of the
+Important: Unlike DuckDuckGo's implementation, Oglofus Bangs only recognizes bangs that appear at the end of the
 query string. For example:
 
 - ✅ `filter bubble !w` - Will work correctly
 - ❌ `!w filter bubble` - Will not be recognized as a bang command
 
-## Command-Line Options
+## Managing/Updating Bangs
 
-Oglofus Bangs supports the following command-line options:
-
-- `-addr string`: HTTP server address (default ":8080")
-- `-default string`: Default search URL template (must contain `<q>` as query placeholder) (
-  default "https://www.google.com/search?q=<q>")
-
-Examples:
-
-```bash
-# Run on default port with Google as default search
-./bangs
-
-# Run on port 9000
-./bangs -addr :9000
-
-# Use DuckDuckGo as the default search engine
-./bangs -default "https://duckduckgo.com/?q=<q>"
-
-# Combine options
-./bangs -addr :9000 -default "https://bing.com/search?q=<q>"
-```
-
-## Customizing Bangs
-
-Bangs are defined in the `bangs.json` file. Each bang has a trigger (`z`) and a URL template (`u`):
+Bangs are defined in `bangs.json` (not checked into the worker bundle). Each bang has a trigger (`t`) and a URL template (`u`):
 
 ```json
 [
-  {
-    "t": "w",
-    "u": "https://en.wikipedia.org/wiki/Special:Search?search=<q>"
-  },
-  {
-    "t": "gh",
-    "u": "https://github.com/search?q=<q>"
-  }
+  { "t": "w",  "u": "https://en.wikipedia.org/wiki/Special:Search?search=<q>" },
+  { "t": "gh", "u": "https://github.com/search?q=<q>" }
 ]
 ```
 
-After modifying the `bangs.json` file, you need to convert it to the binary format used by the application:
-
-For Unix/Linux/macOS users:
+After modifying `bangs.json`, regenerate the binary files used by the worker:
 
 ```bash
-./convert.sh
-```
-
-For other platforms:
-
-```shell
+# Generate bangs.idx and bangs.dat from bangs.json
 go run ./preprocessor/main.go
+
+# Rebuild the worker to embed the updated data files
+npm run build
 ```
 
-This will generate the required `bangs.idx` and `bangs.dat` files.
+This produces:
+- `bangs.idx`: hashed keys + offsets
+- `bangs.dat`: URL templates with `<q>` replaced by a binary placeholder
+
+## Configuration
+
+- Default search engine: The worker falls back to Google when no bang is found. To change the default, edit `main.go`
+  (the `def` variable) and rebuild:
+  ```
+  var def = append([]byte("https://duckduckgo.com/?q="), QueryPlaceholder)
+  ```
+  Then run `npm run build` and redeploy.
 
 ## Technical Details
 
-- The application uses SHA3-224 hashing for bang lookups
-- Bang data is stored in two binary files:
-    - `bangs.idx`: Contains hashed keys and offsets into the data file
-    - `bangs.dat`: Contains the actual URL templates
-- The `<q>` placeholder in URL templates is replaced with the user's search query
-- Default search engine can be customized via command-line flag
-- URL templates use `<q>` as the placeholder in configuration, which is converted to a binary placeholder internally
+- Runtime: Cloudflare Workers via `github.com/syumai/workers`
+- Language: Go compiled to WebAssembly (GOOS=js, GOARCH=wasm)
+- Hashing: SHA3-224 for bang keys
+- Storage: two embedded binary files (`bangs.idx`, `bangs.dat`)
+- `<q>` in URL templates is converted to a single-byte placeholder (0xC0) at build time
 
 ## Performance
 
@@ -183,7 +136,7 @@ Oglofus Bangs is designed for high performance:
 
 - O(log n) lookup time for bangs
 - Minimal memory footprint
-- Fast HTTP handling with fasthttp
+- Runs at the edge on Cloudflare's global network
 - Efficient binary data format
 
 ## Contributing
