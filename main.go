@@ -85,61 +85,60 @@ func findBang(hash []byte) (bang []byte) {
 	return
 }
 
-func main() {
-	var handler http.HandlerFunc = func(w http.ResponseWriter, req *http.Request) {
-		var args = req.URL.Query()
-		var bang = def
+func queryHandler(w http.ResponseWriter, req *http.Request) {
+	var args = req.URL.Query()
+	var bang = def
 
-		if args.Has("fallback") {
-			fallback := args.Get("fallback")
-			bang = append([]byte(fallback), QueryPlaceholder)
-		}
-
-		if args.Has("q") {
-			var q = []byte(args.Get("q"))
-			var qLen = len(q)
-
-			if qLen > 0 {
-				var searchLimit = 32
-				if searchLimit > qLen {
-					searchLimit = qLen
-				}
-
-				for i := qLen - 1; i >= qLen-searchLimit; i-- {
-					if i < 0 {
-						break
-					}
-
-					if q[i] == '!' {
-						if i+1 < qLen {
-							var hash = sha3.Sum224(q[i+1:])
-							var foundBang = findBang(hash[:])
-
-							if len(foundBang) > 0 {
-								q = q[:i]
-								bang = foundBang
-							}
-						}
-
-						break
-					}
-				}
-
-				var url = bytes.Replace(bang, []byte{QueryPlaceholder}, q, -1)
-
-				w.Header().Set("Location", string(url))
-				http.Redirect(w, req, string(url), http.StatusFound)
-
-				return
-			}
-		}
-
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.WriteHeader(200)
-		_, _ = w.Write(index)
-
-		return
+	if args.Has("fallback") {
+		fallback := args.Get("fallback")
+		bang = append([]byte(fallback), QueryPlaceholder)
 	}
 
-	workers.Serve(handler)
+	if args.Has("q") {
+		var q = []byte(args.Get("q"))
+		var qLen = len(q)
+
+		if qLen > 0 {
+			var searchLimit = 32
+			if searchLimit > qLen {
+				searchLimit = qLen
+			}
+
+			for i := qLen - 1; i >= qLen-searchLimit; i-- {
+				if i < 0 {
+					break
+				}
+
+				if q[i] == '!' {
+					if i+1 < qLen {
+						var hash = sha3.Sum224(q[i+1:])
+						var foundBang = findBang(hash[:])
+
+						if len(foundBang) > 0 {
+							q = q[:i]
+							bang = foundBang
+						}
+					}
+
+					break
+				}
+			}
+
+			var url = bytes.Replace(bang, []byte{QueryPlaceholder}, q, -1)
+
+			w.Header().Set("Location", string(url))
+			http.Redirect(w, req, string(url), http.StatusFound)
+
+			return
+		}
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(200)
+	_, _ = w.Write(index)
+}
+
+func main() {
+	http.HandleFunc("/", queryHandler)
+	workers.Serve(nil)
 }
