@@ -30,7 +30,9 @@ bang command. The system:
 
 This approach provides O(log n) lookup performance even with thousands of bangs.
 
-## Deployment (Cloudflare Workers)
+## Deployment 
+
+### Cloudflare Workers
 
 This project targets Cloudflare Workers using the `github.com/syumai/workers` runtime. You can run it locally via
 Wrangler and deploy it to your Cloudflare account.
@@ -39,14 +41,14 @@ One-click deploy:
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2Foglofus%2Fbangs)
 
-### Prerequisites
+#### Prerequisites
 
 - Go 1.25+ (WASM build target)
 - Node.js 18+ and npm
 - Cloudflare account
 - Wrangler CLI (installed locally via devDependency)
 
-### Quick start
+#### Quick start
 
 ```bash
 # Install JS tooling (Wrangler)
@@ -69,6 +71,10 @@ npm run deploy
 Notes:
 - The worker entry is configured in `wrangler.jsonc` (main: ./build/worker.mjs).
 - On first deploy, Wrangler will guide you to select an account and create the worker.
+
+### Container
+
+Alternatively this project can also be run with Docker or another compatible container platform, like Podman. The project provides a Dockerfile which exposes `8080` port.
 
 ## Usage
 
