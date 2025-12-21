@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/syumai/workers"
+	h "github.com/oglofus/bangs/internal/http"
 
 	_ "embed"
 )
@@ -140,5 +140,6 @@ func queryHandler(w http.ResponseWriter, req *http.Request) {
 
 func main() {
 	http.HandleFunc("/", queryHandler)
-	workers.Serve(nil)
+	r := h.Router{Port: "8080"}
+	r.Serve()
 }
