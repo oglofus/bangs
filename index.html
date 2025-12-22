@@ -99,7 +99,6 @@
         }
 
         .url-display {
-            margin-bottom: 2rem;
             display: flex;
             width: 100%;
             position: relative;
@@ -121,6 +120,13 @@
         input[type="text"]:focus {
             border-color: var(--ring);
             box-shadow: 0 0 0 1px var(--ring);
+        }
+
+        form {
+          height: 280px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-around;
         }
 
         .search-form {
@@ -314,19 +320,23 @@
         Use shortcuts like "filter bubble !w" to search directly on other sites.
     </p>
 
-    <div class="url-display">
-        <input id="search-url" readonly type="text">
-        <button class="copy-btn" id="copy-button" title="Copy to clipboard">
-            <svg class="copy-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                 xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"/>
-            </svg>
-        </button>
-    </div>
-
     <form action="" method="get">
+      <div class="url-display">
+          <input id="search-url" readonly type="text">
+          <button class="copy-btn" id="copy-button" title="Copy to clipboard">
+              <svg class="copy-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                   xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+              </svg>
+          </button>
+      </div>
+
+        <label>
+          Fallback search engine
+          <input id="fallback" name="fallback" value="https://www.google.com/search?q=" type="text"></input>
+        </label>
         <div class="search-form">
             <input autofocus name="q" placeholder="Search or add !bang at the end..." type="text">
             <button type="submit">Search</button>
@@ -396,7 +406,9 @@
     document.querySelector('form').action = window.location.origin + '/';
 
     const searchUrl = document.getElementById('search-url');
+    const fallbackUrl = document.getElementById('fallback');
     searchUrl.value = window.location.origin + '/?q=%s';
+    fallbackUrl.addEventListener("input", updateSearchUrl);
 
     document.getElementById('copy-button').addEventListener('click', function () {
         searchUrl.select();
@@ -418,6 +430,10 @@
             infoSection.style.display = 'block';
         }
     });
+
+    function updateSearchUrl(e) {
+      searchUrl.value = window.location.origin + '/?q=%s&fallback=' + encodeURIComponent(e.target.value);
+    }
 </script>
 </body>
 </html>

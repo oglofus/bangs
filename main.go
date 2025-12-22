@@ -4,10 +4,8 @@ import (
 	"bytes"
 	"crypto/sha3"
 	"encoding/binary"
-	"errors"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/syumai/workers"
 
@@ -29,17 +27,6 @@ var index []byte
 
 // Default search URL template with placeholder (0xC0) for query
 var def = append([]byte("https://www.google.com/search?q="), QueryPlaceholder)
-
-func createDefaultBang(template string) ([]byte, error) {
-	if !strings.Contains(template, "<q>") {
-		return nil, errors.New("default bang template must contain '<q>' as the query placeholder")
-	}
-
-	// Replace <q> with the binary placeholder (0xC0)
-	result := strings.Replace(template, "<q>", string([]byte{QueryPlaceholder}), -1)
-
-	return []byte(result), nil
-}
 
 func findBang(hash []byte) (bang []byte) {
 	var valueLength uint64
@@ -101,14 +88,18 @@ func findBang(hash []byte) (bang []byte) {
 func main() {
 	var handler http.HandlerFunc = func(w http.ResponseWriter, req *http.Request) {
 		var args = req.URL.Query()
+		var bang = def
+
+		if args.Has("fallback") {
+			fallback := args.Get("fallback")
+			bang = append([]byte(fallback), QueryPlaceholder)
+		}
 
 		if args.Has("q") {
 			var q = []byte(args.Get("q"))
 			var qLen = len(q)
 
 			if qLen > 0 {
-				var bang = def
-
 				var searchLimit = 32
 				if searchLimit > qLen {
 					searchLimit = qLen
