@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"log"
 	"net/http"
+	"regexp"
 
 	h "github.com/oglofus/bangs/internal/http"
 
@@ -95,36 +96,24 @@ func queryHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if args.Has("q") {
-		var q = []byte(args.Get("q"))
-		var qLen = len(q)
+		var query = []byte(args.Get("q"))
 
-		if qLen > 0 {
-			var searchLimit = 32
-			if searchLimit > qLen {
-				searchLimit = qLen
-			}
+		if len(query) > 0 {
+			r := regexp.MustCompile(`!{1}.[^\s]*`)
+			match := r.FindString(args.Get("q"))
 
-			for i := qLen - 1; i >= qLen-searchLimit; i-- {
-				if i < 0 {
-					break
+			if len(match) > 0 {
+				hash := sha3.Sum224([]byte(match[1:]))
+				foundBang := findBang(hash[:])
+				if len(foundBang) > 0 {
+					bang = foundBang
 				}
 
-				if q[i] == '!' {
-					if i+1 < qLen {
-						var hash = sha3.Sum224(q[i+1:])
-						var foundBang = findBang(hash[:])
-
-						if len(foundBang) > 0 {
-							q = q[:i]
-							bang = foundBang
-						}
-					}
-
-					break
-				}
+				r = regexp.MustCompile(`\s*` + match + `\s*`)
+				query = r.ReplaceAll(query, []byte{})
 			}
 
-			var url = bytes.Replace(bang, []byte{QueryPlaceholder}, q, -1)
+			url := bytes.ReplaceAll(bang, []byte{QueryPlaceholder}, query)
 
 			w.Header().Set("Location", string(url))
 			http.Redirect(w, req, string(url), http.StatusFound)

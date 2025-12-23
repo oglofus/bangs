@@ -7,7 +7,7 @@ availability.
 ## What are bangs?
 
 Bangs are shortcuts that quickly take you to search results on other sites. For example, when you know you want to
-search on another site like Wikipedia or Amazon, bangs get you there fastest. A search for `filter bubble !w` will take
+search on another site like Wikipedia or Amazon, bangs get you there fastest. A search for `!w filter bubble` will take
 you directly to Wikipedia.
 
 ## Why Oglofus Bangs?
@@ -87,12 +87,6 @@ http://127.0.0.1:8787/?q=filter%20bubble%20!w
 ```
 
 This will redirect you to Wikipedia's search for "filter bubble".
-
-Important: Unlike DuckDuckGo's implementation, Oglofus Bangs only recognizes bangs that appear at the end of the
-query string. For example:
-
-- ✅ `filter bubble !w` - Will work correctly
-- ❌ `!w filter bubble` - Will not be recognized as a bang command
 
 ## Managing/Updating Bangs
 
