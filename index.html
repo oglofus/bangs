@@ -8,7 +8,7 @@
       href="https://oglofus.com/favicon.ico"
       rel="icon"
       sizes="any"
-      type="image/svg+xml"
+      type="image/x-icon"
     />
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
@@ -137,10 +137,10 @@
       }
 
       form {
-        height: 280px;
         display: flex;
         flex-direction: column;
-        justify-content: space-around;
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
       }
 
       label {
@@ -156,12 +156,12 @@
       .search-form {
         width: 100%;
         display: flex;
-        margin-bottom: 1.5rem;
       }
 
       .search-form input {
         border-radius: var(--radius) 0 0 var(--radius);
         border-right: none;
+        min-width: 0;
       }
 
       button {
@@ -202,6 +202,11 @@
         color: var(--muted-foreground);
       }
 
+      .copy-btn:focus-visible {
+        outline: 2px solid var(--ring);
+        outline-offset: 2px;
+      }
+
       .copy-btn:hover {
         color: var(--foreground);
         background: transparent;
@@ -225,7 +230,6 @@
       }
 
       #info-section {
-        display: none;
         text-align: left;
         background-color: var(--card);
         border: 1px solid var(--border);
@@ -233,6 +237,10 @@
         border-radius: var(--radius);
         margin-top: 1.5rem;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      #info-section[hidden] {
+        display: none;
       }
 
       #info-section h2 {
@@ -310,6 +318,12 @@
         color: var(--foreground);
       }
 
+      footer a:focus-visible {
+        outline: 2px solid var(--ring);
+        outline-offset: 3px;
+        border-radius: 0.125rem;
+      }
+
       /* Toast notification */
       .toast {
         position: fixed;
@@ -353,7 +367,13 @@
       <form action="" method="get">
         <div class="url-display">
           <input id="search-url" readonly type="text" />
-          <button class="copy-btn" id="copy-button" title="Copy to clipboard">
+          <button
+            aria-label="Copy search URL to clipboard"
+            class="copy-btn"
+            id="copy-button"
+            title="Copy to clipboard"
+            type="button"
+          >
             <svg
               class="copy-icon"
               fill="none"
@@ -391,9 +411,16 @@
         </div>
       </form>
 
-      <button id="info-button">Learn more about Oglofus Bangs</button>
+      <button
+        aria-controls="info-section"
+        aria-expanded="false"
+        id="info-button"
+        type="button"
+      >
+        Learn more about Oglofus Bangs
+      </button>
 
-      <div id="info-section">
+      <div hidden id="info-section">
         <h2>About Oglofus Bangs</h2>
         <p class="description">
           Oglofus Bangs is a high-performance, open-source alternative to
@@ -446,9 +473,19 @@
     </div>
 
     <footer>
-      <a href="https://www.oglofus.com" target="_blank">oglofus.com</a>
-      <a href="https://github.com/oglofus/bangs" target="_blank">github</a>
-      <a href="https://nikosgram.me" target="_blank">nikosgram.me</a>
+      <a href="https://www.oglofus.com" rel="noreferrer" target="_blank">
+        oglofus.com
+      </a>
+      <a
+        href="https://github.com/oglofus/bangs"
+        rel="noreferrer"
+        target="_blank"
+      >
+        github
+      </a>
+      <a href="https://nikosgram.me" rel="noreferrer" target="_blank">
+        nikosgram.me
+      </a>
     </footer>
 
     <div class="toast" id="toast">URL copied to clipboard</div>
@@ -458,14 +495,20 @@
 
       const searchUrl = document.getElementById("search-url");
       const fallbackUrl = document.getElementById("fallback");
-      searchUrl.value = window.location.origin + "/?q=%s";
+      updateSearchUrl();
       fallbackUrl.addEventListener("input", updateSearchUrl);
 
       document
         .getElementById("copy-button")
-        .addEventListener("click", function () {
+        .addEventListener("click", async function () {
           searchUrl.select();
-          document.execCommand("copy");
+          searchUrl.setSelectionRange(0, searchUrl.value.length);
+
+          try {
+            await navigator.clipboard.writeText(searchUrl.value);
+          } catch {
+            document.execCommand("copy");
+          }
 
           const toast = document.getElementById("toast");
           toast.classList.add("show");
@@ -479,18 +522,17 @@
         .getElementById("info-button")
         .addEventListener("click", function () {
           const infoSection = document.getElementById("info-section");
-          if (infoSection.style.display === "block") {
-            infoSection.style.display = "none";
-          } else {
-            infoSection.style.display = "block";
-          }
+          const isOpen = !infoSection.hidden;
+
+          infoSection.hidden = isOpen;
+          this.setAttribute("aria-expanded", String(!isOpen));
         });
 
-      function updateSearchUrl(e) {
-        searchUrl.value =
-          window.location.origin +
-          "/?q=%s&fallback=" +
-          encodeURIComponent(e.target.value);
+      function updateSearchUrl() {
+        const fallback = fallbackUrl.value.trim();
+        searchUrl.value = `${window.location.origin}/?q=%s${
+          fallback ? `&fallback=${encodeURIComponent(fallback)}` : ""
+        }`;
       }
     </script>
   </body>
