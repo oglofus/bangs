@@ -34592,10 +34592,6 @@
     "u": "https://www.greenpeace.org.uk/search/node/<q>"
   },
   {
-    "t": "gpt",
-    "u": "https://www.google.pt/search?q=<q>"
-  },
-  {
     "t": "gpsies",
     "u": "https://gpsies.de/?q=<q>"
   },
