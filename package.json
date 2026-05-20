@@ -9,6 +9,7 @@
     "start": "wrangler dev"
   },
   "devDependencies": {
+    "prettier": "^3.8.3",
     "wrangler": "^4.93.0"
   }
 }
