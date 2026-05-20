@@ -30,7 +30,7 @@ bang command. The system:
 
 This approach provides O(log n) lookup performance even with thousands of bangs.
 
-## Deployment 
+## Deployment
 
 ### Cloudflare Workers
 
@@ -44,31 +44,44 @@ One-click deploy:
 #### Prerequisites
 
 - Go 1.25+ (WASM build target)
-- Node.js 18+ and npm
+- Node.js 18+ and pnpm
 - Cloudflare account
 - Wrangler CLI (installed locally via devDependency)
+
+##### Install PNPM
+
+```bash
+# Install Corepack:
+npm install -g corepack
+
+# Download and install pnpm:
+corepack enable pnpm
+```
+
+Learn more on https://pnpm.io/installation#using-corepack
 
 #### Quick start
 
 ```bash
 # Install JS tooling (Wrangler)
-npm install
+pnpm install
 
 # (Optional) Login once to your Cloudflare account
-npx wrangler login
+pnpx wrangler login
 
 # Build the worker (generates build/app.wasm and build/worker.mjs)
-npm run build
+pnpm run build
 
 # Start local dev server (Miniflare)
-npm run dev
+pnpm run dev
 # → Open the printed http://127.0.0.1:8787 URL
 
 # Deploy to your Cloudflare account
-npm run deploy
+pnpm run deploy
 ```
 
 Notes:
+
 - The worker entry is configured in `wrangler.jsonc` (main: ./build/worker.mjs).
 - On first deploy, Wrangler will guide you to select an account and create the worker.
 
@@ -100,7 +113,7 @@ Bangs are defined in `bangs.json` (not checked into the worker bundle). Each ban
 
 ```json
 [
-  { "t": "w",  "u": "https://en.wikipedia.org/wiki/Special:Search?search=<q>" },
+  { "t": "w", "u": "https://en.wikipedia.org/wiki/Special:Search?search=<q>" },
   { "t": "gh", "u": "https://github.com/search?q=<q>" }
 ]
 ```
@@ -112,10 +125,11 @@ After modifying `bangs.json`, regenerate the binary files used by the worker:
 go run ./preprocessor/main.go
 
 # Rebuild the worker to embed the updated data files
-npm run build
+pnpm run build
 ```
 
 This produces:
+
 - `bangs.idx`: hashed keys + offsets
 - `bangs.dat`: URL templates with `<q>` replaced by a binary placeholder
 
