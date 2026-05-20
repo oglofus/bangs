@@ -34748,6 +34748,10 @@
     "u": "https://play.google.com/store/search?q=<q>"
   },
   {
+    "t": "gpt",
+    "u": "https://chatgpt.com/?q=<q>&hints=search"
+  },
+  {
     "t": "gowifi",
     "u": "https://www.gowifi.co.nz/product-search.html?keyword=<q>"
   },
