@@ -87,11 +87,15 @@ func findBang(hash []byte) (bang []byte) {
 	return
 }
 
+func isValidRedirect(target *url.URL) bool {
+	return target.Scheme == "https" && target.Hostname() != "" && target.User == nil
+}
+
 func buildRedirectURL(template []byte, query string) (string, bool) {
 	encodedQuery := url.QueryEscape(strings.TrimSpace(query))
 	rawURL := bytes.Replace(template, []byte{QueryPlaceholder}, []byte(encodedQuery), -1)
 	target, err := url.Parse(string(rawURL))
-	if err != nil || target.Scheme != "https" || target.Hostname() == "" || target.User != nil {
+	if err != nil || !isValidRedirect(target) {
 		return "", false
 	}
 
