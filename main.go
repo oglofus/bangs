@@ -6,6 +6,8 @@ import (
 	"encoding/binary"
 	"log"
 	"net/http"
+	"net/url"
+	"strings"
 
 	h "github.com/oglofus/bangs/internal/http"
 
@@ -85,14 +87,20 @@ func findBang(hash []byte) (bang []byte) {
 	return
 }
 
+func buildRedirectURL(template []byte, query string) (string, bool) {
+	encodedQuery := url.QueryEscape(strings.TrimSpace(query))
+	rawURL := bytes.Replace(template, []byte{QueryPlaceholder}, []byte(encodedQuery), -1)
+	target, err := url.Parse(string(rawURL))
+	if err != nil || target.Scheme != "https" || target.Hostname() == "" || target.User != nil {
+		return "", false
+	}
+
+	return target.String(), true
+}
+
 func queryHandler(w http.ResponseWriter, req *http.Request) {
 	var args = req.URL.Query()
 	var bang = def
-
-	if args.Has("fallback") {
-		fallback := args.Get("fallback")
-		bang = append([]byte(fallback), QueryPlaceholder)
-	}
 
 	if args.Has("q") {
 		var q = []byte(args.Get("q"))
@@ -124,10 +132,13 @@ func queryHandler(w http.ResponseWriter, req *http.Request) {
 				}
 			}
 
-			var url = bytes.Replace(bang, []byte{QueryPlaceholder}, q, -1)
+			redirectURL, ok := buildRedirectURL(bang, string(q))
+			if !ok {
+				http.Error(w, "invalid redirect target", http.StatusInternalServerError)
+				return
+			}
 
-			w.Header().Set("Location", string(url))
-			http.Redirect(w, req, string(url), http.StatusFound)
+			http.Redirect(w, req, redirectURL, http.StatusFound)
 
 			return
 		}
