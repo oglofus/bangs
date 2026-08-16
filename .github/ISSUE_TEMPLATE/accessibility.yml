@@ -1,0 +1,77 @@
+name: Accessibility barrier
+description: Report a barrier that makes Oglofus Bangs harder or impossible to use.
+title: "[Accessibility]: "
+labels:
+  - accessibility
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting this. Please share only information you are comfortable making public. If this may be a security vulnerability, use the private process in SECURITY.md instead.
+  - type: textarea
+    id: barrier
+    attributes:
+      label: Describe the barrier
+      description: Explain who is affected and what task is difficult or impossible.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should happen for the experience to be usable?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Include a safe URL or query and describe any non-visual cues needed to follow the steps.
+    validations:
+      required: true
+  - type: input
+    id: assistive_technology
+    attributes:
+      label: Assistive technology and version
+      placeholder: NVDA 2025.1, VoiceOver, keyboard only, or Not applicable
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Operating system and browser
+      placeholder: Ubuntu 24.04 and Firefox 140
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: Choose the option that best describes the impact.
+      options:
+        - Critical - a core task cannot be completed
+        - High - significant difficulty, but a workaround exists
+        - Medium - an inconsistent or frustrating experience
+        - Low - a minor usability issue
+    validations:
+      required: true
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround or additional context
+      description: Include a workaround, text alternative, or optional recording with an equivalent text description.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and removed secrets or private information.
+          required: true
+        - label: This report is about an accessibility barrier, not a security vulnerability.
+          required: true

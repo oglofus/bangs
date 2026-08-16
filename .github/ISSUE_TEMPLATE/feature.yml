@@ -1,0 +1,42 @@
+name: Feature request
+description: Suggest an improvement for Oglofus Bangs.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please search existing issues first and explain the user problem this would solve.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: Who would benefit, and what are they trying to accomplish?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior you would like, including a safe example when relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: textarea
+    id: accessibility
+    attributes:
+      label: Accessibility considerations
+      description: Explain how keyboard, screen-reader, zoom/reflow, contrast, reduced-motion, or other accessibility needs are addressed when applicable.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and removed secrets or private information.
+          required: true
+        - label: I have considered security, documentation, and accessibility impact.
+          required: true
