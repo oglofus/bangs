@@ -60,7 +60,7 @@ corepack enable pnpm
 
 Learn more on https://pnpm.io/installation#using-corepack
 
-#### Quick start
+##### Quick start
 
 ```bash
 # Install JS tooling (Wrangler)
@@ -161,4 +161,8 @@ Oglofus Bangs is designed for high performance:
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome. Please read the [contributing guidelines](CONTRIBUTING.md), follow the [Code of Conduct](CODE_OF_CONDUCT.md), and use the repository's issue forms before opening a pull request.
+
+Read the [accessibility statement](ACCESSIBILITY.md) for accessibility goals and reporting instructions. Report suspected vulnerabilities through the private process in [SECURITY.md](SECURITY.md), not a public issue.
+
+This project is distributed under the [Boost Software License 1.0](LICENSE).

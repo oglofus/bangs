@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/oglofus/bangs/security/advisories/new
+    about: Use private vulnerability reporting instead of a public issue.
+  - name: Read the accessibility statement
+    url: https://github.com/oglofus/bangs/blob/main/ACCESSIBILITY.md
+    about: Learn how to report an accessibility barrier.
