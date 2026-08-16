@@ -390,16 +390,6 @@
           </button>
         </div>
 
-        <label for="fallback">
-          <span>Fallback search engine</span>
-          <input
-            id="fallback"
-            name="fallback"
-            value="https://www.google.com/search?q="
-            type="text"
-          />
-        </label>
-
         <div class="search-form">
           <input
             autofocus
@@ -494,9 +484,7 @@
       document.querySelector("form").action = window.location.origin + "/";
 
       const searchUrl = document.getElementById("search-url");
-      const fallbackUrl = document.getElementById("fallback");
       updateSearchUrl();
-      fallbackUrl.addEventListener("input", updateSearchUrl);
 
       document
         .getElementById("copy-button")
@@ -529,10 +517,7 @@
         });
 
       function updateSearchUrl() {
-        const fallback = fallbackUrl.value.trim();
-        searchUrl.value = `${window.location.origin}/?q=%s${
-          fallback ? `&fallback=${encodeURIComponent(fallback)}` : ""
-        }`;
+        searchUrl.value = `${window.location.origin}/?q=%s`;
       }
     </script>
   </body>
