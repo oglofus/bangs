@@ -235,7 +235,7 @@ func seoHandler(w http.ResponseWriter, req *http.Request) bool {
 	switch req.URL.Path {
 	case "/robots.txt":
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		_, _ = fmt.Fprintf(w, "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n", origin)
+		_, _ = fmt.Fprintf(w, "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n", html.EscapeString(origin))
 		return true
 	case "/sitemap.xml":
 		w.Header().Set("Content-Type", "application/xml; charset=utf-8")
